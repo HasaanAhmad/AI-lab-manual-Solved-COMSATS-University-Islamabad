@@ -36,6 +36,6 @@ def bfs(graph, start, end):
             
     return None
 
-path = bfs(graph, 'Arad', 'Bucharest')
+path = bfs(graph, 'Arad', 'Hirsova')
 print(path)
 
