@@ -1,18 +1,3 @@
-# Generate a list of possible words from a character matrix
-# Given an M × N boggle board, find a list of all possible words that can be formed by a sequence of 
-# adjacent characters on the board.
-# We are allowed to search a word in all eight possible directions, i.e., North, West, South, East, NorthEast, North-West, South-East, South-West, but a word should not have multiple instances of the same 
-# cell.
-# Consider the following the traditional 4 × 4 
-# boggle board. If the input dictionary is [START, 
-# NOTE, SAND, STONED], the valid words are 
-# [NOTE, SAND, STONED].
-
-# 4x4 Boggle Board
-# M S E F
-# R A T D
-# L O N E
-# S T O N
 
 
 #SP22-BSE-017 HASAAN AHMAD

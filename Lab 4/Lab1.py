@@ -1,8 +1,5 @@
-# Imagine going from Arad to Bucharest in the following map. Your goal is to minimize the distance 
-# mentioned in the map during your travel. Implement a depth first search to find the corresponding 
-# path.
 
-#SP22-BSE-017 HASAAN AHMAD 
+# SP22-BSE-017 HASAAN AHMAD
 
 class Node:
     def __init__(self, name, neighbors=None):
@@ -32,7 +29,8 @@ graph = {
     'Urziceni': Node('Urziceni', [('Hirsova', 86), ('Bucharest', 98), ('Vaslui', 142)]),
     'Vaslui': Node('Vaslui', [('Urziceni', 98), ('Iasi', 92)]),
     'Zerind': Node('Zerind', [('Oradea', 71), ('Arad', 75)])
-    }
+}
+
 
 def DFS(graph, initialstate, goalstate):
     frontier = [initialstate]
@@ -50,6 +48,7 @@ def DFS(graph, initialstate, goalstate):
                 graph[child[0]].parent = currentNode
                 frontier.append(child[0])
 
+
 def actionSequence(graph, initialstate, goalstate):
     solution = [goalstate]
     currentParent = graph[goalstate].parent
@@ -61,6 +60,7 @@ def actionSequence(graph, initialstate, goalstate):
     solution.append(initialstate)
     solution.reverse()
     return solution
+
 
 initialstate = 'Arad'
 
