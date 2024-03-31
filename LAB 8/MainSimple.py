@@ -1,8 +1,3 @@
-
-
-import math
-
-
 class Node:
     def __init__(self, state, parent, actions, totalCost, heuristic):
         self.state = state
@@ -11,32 +6,7 @@ class Node:
         self.totalCost = totalCost
         self.heuristic = heuristic
 
-
-def findMin(frontier):
-    minV = math.inf
-    node = None
-    for i in frontier:
-        if minV > frontier[i][1]:
-            minV = frontier[i][1]
-            node = i
-    return node
-
-
-def actionSequence(graph, initialState, goalState):
-    solution = [goalState]
-    currentParent = graph[goalState].parent
-    while currentParent is not None:
-        solution.append(currentParent)
-        currentParent = graph[currentParent].parent
-    solution.reverse()
-    return solution
-
-
-def Astar():
-    initialState = '1'
-    goalState = '67'
-
-    graph = {
+graph = {
         '1': Node('1', None, [('2', 1), ('10', 1)], 0, (0, 0)),
         '2': Node('2', None, [('3', 1), ('11', 1)], 0, (0, 1)),
         '3': Node('3', None, [('4', 1), ('12', 1)], 0, (0, 2)),
@@ -104,54 +74,29 @@ def Astar():
         '65': Node('65', None, [('66', 1),("59",1)], 0, (9, 6)),
         '66': Node('66', None, [('60', 1),("65" , 1)], 0, (9, 7)),
         '67': Node('67', None, [('62', 1)], 0, (9, 9)),
-    }
+}
 
-    frontier = {}
-    heuristicCost = abs(graph[initialState].heuristic[0] - graph[goalState].heuristic[0]) + abs(graph[initialState].heuristic[1] - graph[goalState].heuristic[1])
+# Simple Hill climbing: It examines the neighboring nodes one by one and selects the first 
+# neighboring node which optimizes the current cost as the next node.
+def hilclimbing(graph, start, end):
+    current = graph[start]
+    while current.state != end:
+        print(current.state, end = ' ')
+        next = None
+        for action in current.actions:
+            neighbor = graph[action[0]]
+            if neighbor.totalCost < current.totalCost:
+                next = neighbor
+                break
+        if next is None:
+            print("\nStuck at local minimum.")
+            break
+        current = next
+    return current.state
 
-    frontier[initialState] = (None, heuristicCost)
-    explored = {}
+    
 
-    while len(frontier) != 0:
-        currentNode = findMin(frontier)
-        del frontier[currentNode]
-
-        if graph[currentNode].state == goalState:
-            return actionSequence(graph, initialState, goalState)
-
-
-        heuristicCost = abs(graph[currentNode].heuristic[0] - graph[goalState].heuristic[0]) + abs(graph[currentNode].heuristic[1] - graph[goalState].heuristic[1])
-
-        currentCost = graph[currentNode].totalCost
-        explored[currentNode] = (graph[currentNode].parent, heuristicCost + currentCost)
-
-        for child, cost in graph[currentNode].actions:
-            currentCost = cost + graph[currentNode].totalCost
-
-            # Manhattan Distance
-            heuristicCost = abs(graph[child].heuristic[0] - graph[goalState].heuristic[0]) + abs(graph[child].heuristic[1] - graph[goalState].heuristic[1])
+print(hilclimbing(graph, '1', '67'))
 
 
-          
 
-            if child in explored:
-                if graph[child].parent == currentNode or child == initialState or \
-                        explored[child][1] <= currentCost + heuristicCost:
-                    continue
-
-            if child not in frontier:
-                graph[child].parent = currentNode
-                graph[child].totalCost = currentCost
-                frontier[child] = (graph[child].parent, currentCost + heuristicCost)
-            else:
-                if frontier[child][1] < currentCost + heuristicCost:
-                    graph[child].parent = frontier[child][0]
-                    graph[child].totalCost = frontier[child][1] - heuristicCost
-                else:
-                    frontier[child] = (currentNode, currentCost + heuristicCost)
-                    graph[child].parent = frontier[child][0]
-                    graph[child].totalCost = currentCost
-
-
-solution = Astar()
-print(solution)
