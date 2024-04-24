@@ -121,23 +121,32 @@ def search_node_ucs(root):
             queue.append((child, cost + float(child.data['Costs'])))
     print("Node not found.")
 
-# Search from one node to another node having heuristic as the cost
+# Search from one node to another node having cost as heuristic using A* algorithm and print PATH from start to goal
 def search_path_cost(root):
-    start_sku = input("Enter the starting SKU: ")
-    end_sku = input("Enter the ending SKU: ")
-    open_list = [root]
+    start_sku = input("Enter Start SKU: ")
+    if start_sku not in data:
+        print("Invalid Start SKU. Please try again.")
+        return
+    goal_sku = input("Enter Goal SKU: ")
+    if goal_sku not in data:
+        print("Invalid Goal SKU. Please try again.")
+        return
+    open_list = [(root, 0)]
     closed_list = []
     while open_list:
-        current = min(open_list, key=lambda node: node.data['Costs'])
-        open_list.remove(current)
-        closed_list.append(current)
-        if current.data['SKU'] == end_sku:
-            print_node_info(current)
+        current, cost = min(open_list, key=lambda x: x[1])
+        open_list.remove((current, cost))
+        closed_list.append((current, cost))
+        if current.data['SKU'] == goal_sku:
+            print("Path from start to goal: ")
+            for node, _ in closed_list:
+                print(node.data['SKU'])
             return
         for child in current.children:
-            if child not in closed_list:
-                open_list.append(child)
+            if child not in [x[0] for x in closed_list]:
+                open_list.append((child, cost + float(child.data['Costs'])))
     print("Path not found.")
+    
 
 def print_node_info(node):
     print("-----------------------------------------")
