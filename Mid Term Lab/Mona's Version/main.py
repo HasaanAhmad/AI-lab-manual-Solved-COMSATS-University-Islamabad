@@ -1,0 +1,233 @@
+import csv
+ 
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.children = []
+        
+        
+    def add_child(self, child):
+        self.children.append(child)
+        
+    def __repr__(self, level=0):
+        ret = "\t"*level+repr(self.data)+"\n"
+        for child in self.children:
+            ret += child.__repr__(level+1)
+        return ret
+
+data = {}
+with open('./supply_chain_data.csv', 'r') as file:
+    reader = csv.DictReader(file)
+    for row in reader:
+        data[row['SKU']] = row
+
+root = Node(data['SKU0'])
+for key, value in data.items():
+    if key == 'SKU0':
+        continue
+    node = Node(value)
+    root.add_child(node)
+
+# Search Node Through SKU
+def search_node(root):
+    sku = input("Enter SKU: ")
+    if sku not in data:
+        print("Invalid SKU. Please try again.")
+        return
+    node = _search_node(root, sku)  
+    if node:
+        print_node_info(node)
+    else:
+        print("Node not found.")
+
+def _search_node(node, sku):
+    if node.data['SKU'] == sku:
+        return node
+    for child in node.children:
+        result = _search_node(child, sku)
+        if result:
+            return result
+    return None
+
+# Search using A* considering Availability being the heuristic
+def search_node_a_star(root):
+    sku = input("Enter SKU: ")
+    if sku not in data:
+        print("Invalid SKU. Please try again.")
+        return
+    open_list = [root]
+    closed_list = []
+    while open_list:
+        current = max(open_list, key=lambda node: node.data['Availability'])
+        open_list.remove(current)
+        closed_list.append(current)
+        if current.data['SKU'] == sku:
+            print_node_info(current)
+            return
+        for child in current.children:
+            if child not in closed_list:
+                open_list.append(child)
+    print("Node not found.")
+
+# Search using BFS
+def search_node_bfs(root):
+    sku = input("Enter SKU: ")
+    if sku not in data:
+        print("Invalid SKU. Please try again.")
+        return
+    queue = [root]
+    while queue:
+        current = queue.pop(0)
+        if current.data['SKU'] == sku:
+            print_node_info(current)
+            return
+        for child in current.children:
+            queue.append(child)
+    print("Node not found.")
+
+# Search using DFS
+def search_node_dfs(root):
+    sku = input("Enter SKU: ")
+    if sku not in data:
+        print("Invalid SKU. Please try again.")
+        return
+    stack = [root]
+    while stack:
+        current = stack.pop()
+        if current.data['SKU'] == sku:
+            print_node_info(current)
+            return
+        for child in current.children:
+            stack.append(child)
+    print("Node not found.")
+
+# Search using UCS considering Revenue generated being the cost also print costs being compared to show how its working
+def search_node_ucs(root):
+    sku = input("Enter SKU: ")
+    if sku not in data:
+        print("Invalid SKU. Please try again.")
+        return
+    queue = [(root, 0)]
+    print("Costs being compared: ")
+    while queue:
+        current, cost = queue.pop(0)
+        print(cost, current.data['Costs'])
+        if current.data['SKU'] == sku:
+            print_node_info(current)
+            return
+        for child in current.children:
+            queue.append((child, cost + float(child.data['Costs'])))
+    print("Node not found.")
+
+# Search from one node to another node having cost as heuristic using A* algorithm and print PATH from start to goal
+def search_path_cost(root):
+    start_sku = input("Enter Start SKU: ")
+    if start_sku not in data:
+        print("Invalid Start SKU. Please try again.")
+        return
+    goal_sku = input("Enter Goal SKU: ")
+    if goal_sku not in data:
+        print("Invalid Goal SKU. Please try again.")
+        return
+    open_list = [(root, 0)]
+    closed_list = []
+    while open_list:
+        current, cost = min(open_list, key=lambda x: x[1])
+        open_list.remove((current, cost))
+        closed_list.append((current, cost))
+        if current.data['SKU'] == goal_sku:
+            print("Path from start to goal: ")
+            for node, _ in closed_list:
+                print(node.data['SKU'])
+            return
+        for child in current.children:
+            if child not in [x[0] for x in closed_list]:
+                open_list.append((child, cost + float(child.data['Costs'])))
+    print("Path not found.")
+
+# Search using Best-First Search (BFS) with a specified heuristic function
+def search_node_best_first(root, heuristic_fn):
+    sku = input("Enter SKU: ")
+    if sku not in data:
+        print("Invalid SKU. Please try again.")
+        return
+    queue = [(root, heuristic_fn(root))]
+    closed_set = set()
+    while queue:
+        queue.sort(key=lambda x: x[1])
+        current, _ = queue.pop(0)
+        if current.data['SKU'] == sku:
+            print_node_info(current)
+            return
+        closed_set.add(current)
+        for child in current.children:
+            if child not in closed_set:
+                queue.append((child, heuristic_fn(child)))
+    print("Node not found.")
+
+# Define a heuristic function for Best-First Search (BFS)
+def availability_heuristic(node):
+    # Example heuristic: prioritize nodes with higher availability
+    return node.data['Availability']
+
+def print_tree_form(root):
+    print(root)
+
+# Function to print node information
+def print_node_info(node):
+    print("-----------------------------------------")
+    print("-----------------------------------------")
+    print("\nSKU:", node.data['SKU'])
+    print("Product Type:", node.data['Product type'])
+    print("Price:", node.data['Price'])
+    print("Availability:", node.data['Availability'])
+    print("Available Stock:", node.data['Stock levels'])
+    print("Quantity Available:", node.data['Order quantities'])
+    print("\n-----------------------------------------")
+    print("-----------------------------------------")
+
+# Main menu function
+def menu():
+    while True:
+        print("--------------------------------------------------")
+        print("--------------------------------------------------\n")
+        print("SUPPLY CHAIN MANAGEMENT SYSTEM")
+        print("1. Search Node Through SKU (e.g SKU2, SKU45 etc)")
+        print("2. Search Node Through A*")
+        print("3. Search Node Through BFS")
+        print("4. Search Node Through DFS")
+        print("5. Search Node Through UCS")
+        print("6. Best-First Search (BFS)")
+        print("7. Finding path from one node to another node heuristic as the cost")
+        print("0. Exit\n")
+        print("--------------------------------------------------")
+        print("--------------------------------------------------\n")
+
+        try:
+            choice = int(input("Enter your choice: "))
+            if choice == 0:
+                break
+            elif choice == 1:
+                search_node(root)
+            elif choice == 2:
+                search_node_a_star(root)
+            elif choice == 3:
+                search_node_bfs(root)
+            elif choice == 4:
+                search_node_dfs(root)
+            elif choice == 5:
+                search_node_ucs(root)
+            elif choice == 6:
+                search_node_best_first(root, availability_heuristic)
+            elif choice == 7:
+                search_path_cost(root)
+            elif choice == 8:
+                print_tree_form(root)
+            else:
+                print("Invalid choice. Please try again.")
+        except Exception as e:
+            print("An error occurred: ", e)
+
+
+if __name__ == '__main__':
+    menu()
