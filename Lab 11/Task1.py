@@ -1,26 +1,16 @@
-from csp import CSP, backtracking_search
+from constraint import Problem, AllDifferentConstraint
 
-def queens(n):
-    # Define the variables and their domains
-    variables = range(n)
-    domains = {variable: range(n) for variable in variables}
 
-    # Define the function to check if a queen can attack another
-    def can_attack(q1, q2):
-        return q1[1] == q2[1] or abs(q1[0] - q2[0]) == abs(q1[1] - q2[1])
+problem = Problem()
 
-    # Define the constraints
-    def queen_constraint(A, a, B, b):
-        return not can_attack((A, a), (B, b))
+problem.addVariables(range(4), range(4))
 
-    # Create a CSP instance
-    problem = CSP(variables, domains, queen_constraint)
+problem.addConstraint(AllDifferentConstraint())
 
-    # Use the backtracking search function to find a solution
-    solution = backtracking_search(problem)
+problem.addConstraint(lambda q1, q2, q3, q4: abs(q1 - q2) != 1 and abs(q1 - q3) != 2 and abs(q1 - q4) != 3 and 
+                                          abs(q2 - q3) != 1 and abs(q2 - q4) != 2 and abs(q3 - q4) != 1, 
+                                          (0, 1, 2, 3))
 
-    # Print the solution
+solutions = problem.getSolutions()
+for solution in solutions:
     print(solution)
-
-# Call the function for a 4x4 chessboard
-queens(4)
